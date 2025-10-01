@@ -4079,6 +4079,60 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_offers(self):
+        """
+        v5 Test method offers
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/store/offers')
+        .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+        .params({'filter[site]': 'https://retailcrm.pro'})
+        .reply(200)
+        .headers(self.__header)
+        .json(
+            {
+                'success': 'true',
+                'pagination': {
+                    'limit': 20,
+                    'totalCount': 1,
+                    'currentPage': 1,
+                    'totalPageCount': 1
+                },
+                'offers': [
+                    {
+                        'images': [],
+                        'id': 33937,
+                        'site': 'https://retailcrm.pro',
+                        'name': 'Shirt',
+                        'article': 'SHIRT-BLACK',
+                        'prices': {
+                            "priceType": "base",
+                            "price": 4,
+                            "ordering": 100,
+                            "currency": "EUR"
+                        },
+                        'purchasePrice': 1,
+                        'vatRate': 'none',
+                        'product': {},
+                        'properties': {
+                            'color': 'black'
+                        },
+                        'quantity': 10,
+                        'active': True,
+                        'barcode': '12345'
+                    }
+                ]
+            }
+        )
+        )
+
+        response = self.client.offers({'site': 'https://retailcrm.pro'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_prices_upload(self):
         """
         V5 Test method prices_upload

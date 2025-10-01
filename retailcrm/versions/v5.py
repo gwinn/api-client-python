@@ -1381,6 +1381,19 @@ class Client(Base):
 
         return self.post('/store/inventories/upload')
 
+    def offers(self, filters=None, limit=20, page=1):
+        """
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/store/offers')
+
     def prices_upload(self, prices):
         """
         :param prices: array of objects
