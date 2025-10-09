@@ -4085,45 +4085,45 @@ class TestVersion5(unittest.TestCase):
         """
 
         (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/store/offers')
-        .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-        .params({'filter[site]': 'https://retailcrm.pro'})
-        .reply(200)
-        .headers(self.__header)
-        .json(
-            {
-                'success': 'true',
-                'pagination': {
-                    'limit': 20,
-                    'totalCount': 1,
-                    'currentPage': 1,
-                    'totalPageCount': 1
-                },
-                'offers': [
-                    {
-                        'images': [],
-                        'id': 33937,
-                        'site': 'https://retailcrm.pro',
-                        'name': 'Shirt',
-                        'article': 'SHIRT-BLACK',
-                        'prices': {
-                            "priceType": "base",
-                            "price": 4,
-                            "ordering": 100,
-                            "currency": "EUR"
-                        },
-                        'purchasePrice': 1,
-                        'vatRate': 'none',
-                        'product': {},
-                        'properties': {
-                            'color': 'black'
-                        },
-                        'quantity': 10,
-                        'active': True,
-                        'barcode': '12345'
-                    }
-                ]
-            }
-        )
+            .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+            .params({'filter[site]': 'https://retailcrm.pro'})
+            .reply(200)
+            .headers(self.__header)
+            .json(
+                {
+                    'success': 'true',
+                    'pagination': {
+                        'limit': 20,
+                        'totalCount': 1,
+                        'currentPage': 1,
+                        'totalPageCount': 1
+                    },
+                    'offers': [
+                        {
+                            'images': [],
+                            'id': 33937,
+                            'site': 'https://retailcrm.pro',
+                            'name': 'Shirt',
+                            'article': 'SHIRT-BLACK',
+                            'prices': {
+                                "priceType": "base",
+                                "price": 4,
+                                "ordering": 100,
+                                "currency": "EUR"
+                            },
+                            'purchasePrice': 1,
+                            'vatRate': 'none',
+                            'product': {},
+                            'properties': {
+                                'color': 'black'
+                            },
+                            'quantity': 10,
+                            'active': True,
+                            'barcode': '12345'
+                        }
+                    ]
+                }
+            )
         )
 
         response = self.client.offers({'site': 'https://retailcrm.pro'})
