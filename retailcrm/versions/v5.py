@@ -314,6 +314,24 @@ class Client(Base):
 
         return self.post('/customers/' + str(customer[uid_type]) + '/edit')
 
+    def customer_subscription(self, uid, subscriptions, uid_type='externalId', site=None):
+        """
+        :param uid: string
+        :param subscriptions: array of objects
+        :param uid_type: string
+        :param site: string
+        :return: Response
+        """
+        self.parameters['subscriptions'] = json.dumps(subscriptions)
+
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if site is not None:
+            self.parameters['site'] = site
+
+        return self.post('/customers/' + str(uid) + '/subscriptions')
+
     def customers_corporate(self, filters=None, limit=20, page=1):
         """
         :param filters: object
@@ -579,7 +597,15 @@ class Client(Base):
         if site is not None:
             self.parameters['site'] = site
 
-        return self.post('/customers-corporate/' + str(uid_corporate) + '/companies/' + str(company[entity_by]) + '/edit')
+        return self.post("".join(
+            [
+                '/customers-corporate/',
+                str(uid_corporate),
+                '/companies/',
+                str(company[entity_by]),
+                '/edit'
+            ]
+        ))
 
     def customer_corporate_contacts(self, uid, uid_type='externalId', limit=20, page=1, filters=None, site=None):
         """
@@ -646,7 +672,15 @@ class Client(Base):
         if site is not None:
             self.parameters['site'] = site
 
-        return self.post('/customers-corporate/' + str(uid_corporate) + '/contacts/' + str(contact[entity_by]) + '/edit')
+        return self.post("".join(
+            [
+                '/customers-corporate/',
+                str(uid_corporate),
+                '/contacts/',
+                str(contact[entity_by]),
+                '/edit'
+            ]
+        ))
 
     def customer_corporate_edit(self, customer_corporate, uid_type='externalId', site=None):
         """
@@ -664,6 +698,116 @@ class Client(Base):
             self.parameters['site'] = site
 
         return self.post('/customers-corporate/' + str(customer_corporate[uid_type]) + '/edit')
+
+    def customer_interaction_cart_clear(self, site, cart, siteBy='code'):
+        """
+        :param site: string
+        :param cart: object
+        :param siteBy: string
+        :return: Response
+        """
+        self.parameters['cart'] = json.dumps(cart)
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.post('/customer-interaction/' + str(site) + '/cart/clear')
+
+    def customer_interaction_cart_set(self, site, cart, siteBy='code'):
+        """
+        :param site: string
+        :param cart: object
+        :param siteBy: string
+        :return: Response
+        """
+        self.parameters['cart'] = json.dumps(cart)
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.post('/customer-interaction/' + str(site) + '/cart/set')
+
+    def customer_interaction_cart(self, site, customer_id, uid_type='externalId', siteBy='code'):
+        """
+        :param site: string
+        :param customer_id: string
+        :param uid_type: string
+        :param siteBy: string
+        :return: Response
+        """
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.get('/customer-interaction/' + str(site) + '/cart/' + str(customer_id))
+
+    def customer_interaction_favorites(self, site, customer_id, uid_type='externalId', siteBy='code'):
+        """
+        :param site: string
+        :param customer_id: string
+        :param uid_type: string
+        :param siteBy: string
+        :return: Response
+        """
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.get('/customer-interaction/' + str(site) + '/favorites/' + str(customer_id))
+
+    def customer_interaction_favorites_add(self, site, customer_id, favorite, uid_type='externalId', siteBy='code'):
+        """
+        :param site: string
+        :param customer_id: string
+        :param favorite: object
+        :param uid_type: string
+        :param siteBy: string
+        :return: Response
+        """
+        self.parameters['favorite'] = json.dumps(favorite)
+
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.post('/customer-interaction/' + str(site) + '/favorites/' + str(customer_id) + '/add')
+
+    def customer_interaction_favorite_remove(self, site, customer_id, favorite, uid_type='externalId', siteBy='code'):
+        """
+        :param site: string
+        :param customer_id: string
+        :param favorite: object
+        :param uid_type: string
+        :param siteBy: string
+        :return: Response
+        """
+        self.parameters['favorite'] = json.dumps(favorite)
+
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if siteBy != 'code':
+            self.parameters['siteBy'] = siteBy
+
+        return self.post('/customer-interaction/' + str(site) + '/favorites/' + str(customer_id) + '/remove')
+
+    def delivery_calculate(self, deliveryTypeCodes, order):
+        """
+        :param deliveryTypeCodes: array of strings
+        :param order: object
+        :return: Response
+        """
+        self.parameters['deliveryTypeCodes'] = json.dumps(deliveryTypeCodes)
+
+        self.parameters['order'] = json.dumps(order)
+
+        return self.post('/delivery/calculate')
 
     def delivery_tracking(self, code, status_update):
         """
@@ -783,7 +927,7 @@ class Client(Base):
 
     def integration_module(self, code):
         """
-        :param code: integer
+        :param code: string
         :return: Response
         """
 
@@ -797,6 +941,184 @@ class Client(Base):
         self.parameters['integrationModule'] = json.dumps(configuration)
 
         return self.post('/integration-modules/' + str(configuration['code']) + '/edit')
+
+    def integration_module_update_scopes(self, code, requires):
+        """
+        :param code: string
+        :param requires: object
+        :return: Response
+        """
+        self.parameters['requires'] = json.dumps(requires)
+
+        return self.post('/integration-modules/' + str(code) + '/update-scopes')
+
+    def loyalty_account_create(self, site, loyalty_account):
+        """
+        :param site: string
+        :param loyalty_account: object
+        :return: Response
+        """
+        self.parameters['site'] = site
+        self.parameters['loyaltyAccount'] = json.dumps(loyalty_account)
+
+        return self.post('/loyalty/account/create')
+
+    def loyalty_account(self, uid):
+        """
+        :param uid: integer
+        :return: Response
+        """
+
+        return self.get('/loyalty/account/' + str(uid))
+
+    def loyalty_account_activate(self, uid):
+        """
+        :param uid: integer
+        :return: Response
+        """
+
+        return self.post('/loyalty/account/' + str(uid) + '/activate')
+
+    def loyalty_account_bonus_charge(self, uid, amount, comment):
+        """
+        :param uid: integer
+        :param amount: float
+        :param comment: string
+        :return: Response
+        """
+        self.parameters['amount'] = amount
+        self.parameters['comment'] = comment
+
+        return self.post('/loyalty/account/' + str(uid) + '/bonus/charge')
+
+    def loyalty_account_bonus_credit(self, uid, amount, activation_date, expire_date, comment):
+        """
+        :param uid: integer
+        :param amount: float
+        :param activation_date: date (Y-m-d)
+        :param expire_date: date (Y-m-d)
+        :param comment: string
+        :return: Response
+        """
+        self.parameters['amount'] = amount
+        self.parameters['activationDate'] = activation_date
+        self.parameters['expireDate'] = expire_date
+        self.parameters['comment'] = comment
+
+        return self.post('/loyalty/account/' + str(uid) + '/bonus/credit')
+
+    def loyalty_account_bonus_operations(self, uid, filters=None, limit=20, page=1):
+        """
+        :param uid: integer
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/loyalty/account/' + str(uid) + '/bonus/operations')
+
+    def loyalty_account_bonus_details(self, uid, status, filters=None, limit=20, page=1):
+        """
+        :param uid: integer
+        :param status: string
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/loyalty/account/' + str(uid) + '/bonus/' + str(status) + '/details')
+
+    def loyalty_account_edit(self, uid, loyalty_account):
+        """
+        :param uid: integer
+        :param loyalty_account: object
+        :return: Response
+        """
+        self.parameters['loyaltyAccount'] = json.dumps(loyalty_account)
+
+        return self.post('/loyalty/account/' + str(uid) + '/edit')
+
+    def loyalty_accounts(self, filters=None, limit=20, page=1):
+        """
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/loyalty/accounts')
+
+    def loyalty_bonus_operations(self, filters=None, limit=20, cursor=None):
+        """
+        :param filters: object
+        :param limit: integer
+        :param cursor: string
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+
+        if cursor:
+            self.parameters['cursor'] = cursor
+
+        return self.get('/loyalty/bonus/operations')
+
+    def loyalty_calculate(self, order, site=None, bonuses=0):
+        """
+        :param order: object
+        :param site: string
+        :param bonuses: float
+        :return: Response
+        """
+        self.parameters['order'] = json.dumps(order)
+
+        if site is not None:
+            self.parameters['site'] = site
+
+        self.parameters['bonuses'] = bonuses
+
+        return self.post('/loyalty/calculate')
+
+    def loyalty_loyalties(self, filters=None, limit=20, page=1):
+        """
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/loyalty/loyalties')
+
+    def loyalty_loyalty(self, uid):
+        """
+        :param uid: integer
+        :return: Response
+        """
+
+        return self.get('/loyalty/loyalties/' + str(uid))
+
+    def notifications_send(self, notification):
+        """
+        :param notification: object
+        :return: Response
+        """
+        self.parameters['notification'] = json.dumps(notification)
+
+        return self.post('/notifications/send')
 
     def orders(self, filters=None, limit=20, page=1):
         """
@@ -876,6 +1198,36 @@ class Client(Base):
 
         return self.post('/orders/links/create')
 
+    def orders_loyalty_apply(self, order, site=None, bonuses=0):
+        """
+        :param order: object
+        :param site: string
+        :param bonuses: float
+        :return: Response
+        """
+        self.parameters['order'] = json.dumps(order)
+
+        if site is not None:
+            self.parameters['site'] = site
+
+        if bonuses != 0:
+            self.parameters['bonuses'] = bonuses
+
+        return self.post('/orders/loyalty/apply')
+
+    def orders_loyalty_cancel_bonus_operations(self, order, site=None):
+        """
+        :param order: object
+        :param site: string
+        :return: Response
+        """
+        self.parameters['order'] = json.dumps(order)
+
+        if site is not None:
+            self.parameters['site'] = site
+
+        return self.post('/orders/loyalty/cancel-bonus-operations')
+
     def order_payment_create(self, payment, site=None):
         """
         :param payment: object
@@ -951,6 +1303,19 @@ class Client(Base):
 
         return self.get('/orders/' + str(uid))
 
+    def orders_delivery_cancel(self, uid, uid_type='externalId', force='false'):
+        """
+        :param uid: string
+        :param uid_type: string
+        :param force: string
+        """
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        self.parameters['force'] = force
+
+        return self.post('/orders/' + str(uid) + '/delivery/cancel')
+
     def order_edit(self, order, uid_type='externalId', site=None):
         """
         :param order: object
@@ -967,6 +1332,22 @@ class Client(Base):
             self.parameters['by'] = uid_type
 
         return self.post('/orders/' + str(order[uid_type]) + '/edit')
+
+    def orders_plates_print(self, uid, plate_id, uid_type='externalId', site=None):
+        """
+        :param uid: string
+        :param plate_id: integer
+        :param uid_type: string
+        :param site: string
+        :return: Response
+        """
+        if site is not None:
+            self.parameters['site'] = site
+
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        return self.get('/orders/' + str(uid) + '/plates/' + str(plate_id) + '/print')
 
     def packs(self, filters=None, limit=20, page=1):
         """
@@ -1019,6 +1400,15 @@ class Client(Base):
 
         return self.post('/orders/packs/' + str(uid) + '/delete')
 
+    def pack_edit(self, pack):
+        """
+        :param pack: object
+        :return: Response
+        """
+        self.parameters['pack'] = json.dumps(pack)
+
+        return self.post('/orders/packs/' + str(pack['id']) + '/edit')
+
     def payment_check(self, check):
         """
         :param check: object
@@ -1037,6 +1427,23 @@ class Client(Base):
 
         return self.post('/payment/create-invoice')
 
+    def payment_invoice_import(self, invoice):
+        """
+        :param invoice: object
+        :return: Response
+        """
+        self.parameters['invoice'] = json.dumps(invoice)
+
+        return self.post('/payment/invoice/import')
+
+    def payment_invoice(self, uid):
+        """
+        :param uid: string
+        :return: Response
+        """
+
+        return self.get('/payment/invoice/' + str(uid))
+
     def payment_update_invoice(self, update_invoice):
         """
         :param update_invoice: object
@@ -1045,15 +1452,6 @@ class Client(Base):
         self.parameters['updateInvoice'] = json.dumps(update_invoice)
 
         return self.post('/payment/update-invoice')
-
-    def pack_edit(self, pack):
-        """
-        :param pack: object
-        :return: Response
-        """
-        self.parameters['pack'] = json.dumps(pack)
-
-        return self.post('/orders/packs/' + str(pack['id']) + '/edit')
 
     def cost_groups(self):
         """
@@ -1085,7 +1483,7 @@ class Client(Base):
         """
         self.parameters['costItem'] = json.dumps(cost_item)
 
-        return self.post('/reference/cost-groups/' + cost_item['code'] + '/edit')
+        return self.post('/reference/cost-items/' + cost_item['code'] + '/edit')
 
     def countries(self):
         """
@@ -1118,6 +1516,31 @@ class Client(Base):
         self.parameters['courier'] = json.dumps(courier)
 
         return self.post('/reference/couriers/' + str(courier['id']) + '/edit')
+
+    def currencies(self):
+        """
+        :return: Response
+        """
+
+        return self.get('/reference/currencies')
+
+    def currencies_create(self, currency):
+        """
+        :param currency: object
+        :return: Response
+        """
+        self.parameters['currency'] = json.dumps(currency)
+
+        return self.post('/reference/currencies/create')
+
+    def currencies_edit(self, currency):
+        """
+        :param currency: object
+        :return: Response
+        """
+        self.parameters['currency'] = json.dumps(currency)
+
+        return self.post('/reference/currencies/' + str(currency['id']) + '/edit')
 
     def delivery_services(self):
         """
@@ -1326,6 +1749,24 @@ class Client(Base):
 
         return self.post('/reference/stores/' + store['code'] + '/edit')
 
+    def subscriptions(self):
+        """
+        :return: Response
+        """
+
+        return self.get('/reference/subscriptions')
+
+    def subscriptions_edit(self, channel, code, subscription):
+        """
+        :param channel: string
+        :param code: string
+        :param subscription: object
+        :return: Response
+        """
+        self.parameters['subscription'] = json.dumps(subscription)
+
+        return self.post('/reference/subscriptions/' + str(channel) + '/' + str(code) + '/edit')
+
     def units(self):
         """
         :return: Response
@@ -1354,6 +1795,13 @@ class Client(Base):
         self.parameters['page'] = page
 
         return self.get('/segments')
+
+    def settings(self):
+        """
+        :return: Response
+        """
+
+        return self.get('/settings')
 
     def inventories(self, filters=None, limit=20, page=1):
         """
@@ -1416,6 +1864,33 @@ class Client(Base):
 
         return self.get('/store/product-groups')
 
+    def product_groups_create(self, productGroup):
+        """
+        :param productGroup: object
+        :return: Response
+        """
+        self.parameters['productGroup'] = json.dumps(productGroup)
+
+        return self.post('/store/product-groups/create')
+
+    def product_groups_edit(self, uid, productGroup, uid_type='externalId', site=None):
+        """
+        :param uid: string
+        :param productGroup: object
+        :param uid_type: string
+        :param site: string
+        :return: Response
+        """
+        self.parameters['productGroup'] = json.dumps(productGroup)
+
+        if uid_type != 'externalId':
+            self.parameters['by'] = uid_type
+
+        if site is not None:
+            self.parameters['site'] = site
+
+        return self.post('/store/product-groups/' + str(uid) + '/edit')
+
     def products(self, filters=None, limit=20, page=1):
         """
         :param filters: object
@@ -1429,6 +1904,24 @@ class Client(Base):
 
         return self.get('/store/products')
 
+    def products_batch_create(self, products):
+        """
+        :param products: array of objects
+        :return: Response
+        """
+        self.parameters['products'] = json.dumps(products)
+
+        return self.post('/store/products/batch/create')
+
+    def products_batch_edit(self, products):
+        """
+        :param products: array of objects
+        :return: Response
+        """
+        self.parameters['products'] = json.dumps(products)
+
+        return self.post('/store/products/batch/edit')
+
     def products_properties(self, filters=None, limit=20, page=1):
         """
         :param filters: object
@@ -1441,6 +1934,19 @@ class Client(Base):
         self.parameters['page'] = page
 
         return self.get('/store/products/properties')
+
+    def products_properties_values(self, filters=None, limit=20, page=1):
+        """
+         :param filters: object
+         :param limit: integer
+         :param page: integer
+         :return: Response
+         """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/store/products/properties/values')
 
     def tasks(self, filters=None, limit=20, page=1):
         """
@@ -1468,6 +1974,19 @@ class Client(Base):
 
         return self.post('/tasks/create')
 
+    def tasks_history(self, filters=None, limit=20, page=1):
+        """
+        :param filters: object
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['filter'] = filters
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/tasks/history')
+
     def task(self, uid):
         """
         :param uid: string
@@ -1475,6 +1994,18 @@ class Client(Base):
         """
 
         return self.get('/tasks/' + str(uid))
+
+    def tasks_comments(self, uid, limit=20, page=1):
+        """
+        :param uid: string
+        :param limit: integer
+        :param page: integer
+        :return: Response
+        """
+        self.parameters['limit'] = limit
+        self.parameters['page'] = page
+
+        return self.get('/tasks/' + str(uid) + '/comments')
 
     def task_edit(self, task, site=None):
         """
@@ -1558,10 +2089,53 @@ class Client(Base):
         :param status: string
         :return: Response
         """
-
         self.parameters['status'] = status
 
         return self.post('/users/' + str(uid) + '/status')
+
+    def verification_sms_confirm(self, verification):
+        """
+        :param verification: object
+        :return: Response
+        """
+        self.parameters['verification'] = json.dumps(verification)
+
+        return self.post('/verification/sms/confirm')
+
+    def verification_sms_status(self, check_id):
+        """
+        :param check_id: string
+        :return: Response
+        """
+
+        return self.get('/verification/sms/' + str(check_id) + '/status')
+
+    def web_analytics_client_ids_upload(self, client_ids):
+        """
+        :param client_ids: array of objects
+        :return: Response
+        """
+        self.parameters['clientIds'] = json.dumps(client_ids)
+
+        return self.post('/web-analytics/client-ids/upload')
+
+    def web_analytics_sources_upload(self, sources):
+        """
+        :param sources: array of objects
+        :return: Response
+        """
+        self.parameters['sources'] = json.dumps(sources)
+
+        return self.post('/web-analytics/sources/upload')
+
+    def web_analytics_visits_upload(self, visits):
+        """
+        :param visits: array of objects
+        :return: Response
+        """
+        self.parameters['visits'] = json.dumps(visits)
+
+        return self.post('/web-analytics/visits/upload')
 
     def statistic_update(self):
         """

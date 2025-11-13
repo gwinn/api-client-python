@@ -410,7 +410,7 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_costs_delete_v5(self):
+    def test_costs_delete(self):
         """
         V5 Test method costs_delete
         """
@@ -1052,6 +1052,29 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_customer_subscription(self):
+        """
+        V5 Test method customer_subscription
+        """
+
+        uid = str(self.__customer['externalId'])
+        subscriptions = [{'channel': 'email', 'active': 'true', 'messageId': 1}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/customers/' + uid + '/subscriptions')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('subscriptions', subscriptions))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.customer_subscription(uid, subscriptions)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_customers_corporate(self):
         """
         V5 Test customers_corporate
@@ -1124,14 +1147,14 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def customers_corporate_fix_external_ids(self):
+    def test_customers_corporate_fix_external_ids(self):
         """
         V5 Test method customers_corporate_fix_external_ids
         """
 
         (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/customers-corporate/fix-external-ids')
          .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .body(self.dictionaryEncode('customerCorporate', self.__customer_corporate['externalId']))
+         .body(self.dictionaryEncode('customersCorporate', self.__customer_corporate['externalId']))
          .reply(200)
          .headers(self.__header)
          .json({'success': 'true'})
@@ -1144,7 +1167,7 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_customers_history_v5(self):
+    def test_customers_history(self):
         """
         V5 Test method customers_corporate_history
         """
@@ -1643,6 +1666,170 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_customer_interaction_cart_clear(self):
+        """
+        V5 Test method customer_interaction_cart_clear
+        """
+
+        site = 'test-org'
+        cart = {'customer': {'id': 9717}}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/cart/clear')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('cart', cart))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.customer_interaction_cart_clear(site, cart)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_customer_interaction_cart_set(self):
+        """
+        V5 Test method customer_interaction_cart_set
+        """
+
+        site = 'test-org'
+        cart = {'customer': {'id': 9717}, 'items': [{"quantity": 1, "offer": {"id": 1}}]}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/cart/set')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('cart', cart))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.customer_interaction_cart_set(site, cart)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_customer_interaction_cart(self):
+        """
+        V5 Test method customer_interaction_cart
+        """
+
+        site = 'test-org'
+        customer_id = str(self.__customer['externalId'])
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/cart/' + customer_id)
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'cart': {'customer': {'id': 9717}, 'items': [{"quantity": 1, "offer": {"id": 1}}]}})
+         )
+
+        response = self.client.customer_interaction_cart(site, customer_id)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_customer_interaction_favorites(self):
+        """
+        V5 Test method customer_interaction_favorites
+        """
+
+        site = 'test-org'
+        customer_id = str(self.__customer['externalId'])
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/favorites/' + customer_id)
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'favorites': []})
+         )
+
+        response = self.client.customer_interaction_favorites(site, customer_id)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_customer_interaction_favorites_add(self):
+        """
+        V5 Test method customer_interaction_favorites_add
+        """
+
+        site = 'test-org'
+        customer_id = str(self.__customer['externalId'])
+        favorite = {'offer': {'externalId': 'test-offer'}}
+
+        (pook.post(
+            os.getenv('RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/favorites/' + customer_id + '/add')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('favorite', favorite))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.customer_interaction_favorites_add(site, customer_id, favorite)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_customer_interaction_favorite_remove(self):
+        """
+        V5 Test method customer_interaction_favorite_remove
+        """
+
+        site = 'test-org'
+        customer_id = str(self.__customer['externalId'])
+        favorite = {'offer': {'externalId': 'test-offer'}}
+
+        (pook.post(os.getenv(
+            'RETAILCRM_URL') + '/api/v5/customer-interaction/' + site + '/favorites/' + customer_id + '/remove')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('favorite', favorite))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.customer_interaction_favorite_remove(site, customer_id, favorite)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_delivery_calculate(self):
+        """
+        V5 Test method delivery_calculate
+        """
+
+        deliveryTypeCodes = ['courier', 'pickup']
+        order = {'items': [], 'delivery': {'address': {}}}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/delivery/calculate')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(
+            self.dictionaryEncode('deliveryTypeCodes', deliveryTypeCodes) + '&' + self.dictionaryEncode('order', order))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'deliveries': []})
+         )
+
+        response = self.client.delivery_calculate(deliveryTypeCodes, order)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_delivery_tracking(self):
         """
         V5 Test method delivery_tracking
@@ -2055,6 +2242,339 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_integration_module_update_scopes(self):
+        """
+        V5 Test method integration_module_update_scopes
+        """
+
+        code = 'xxx'
+        requires = {'scopes': ['order_write', 'customer_write']}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/integration-modules/' + code + '/update-scopes')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('requires', requires))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.integration_module_update_scopes(code, requires)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_create(self):
+        """
+        V5 Test method loyalty_account_create
+        """
+
+        site = 'test-org'
+        loyalty_account = {'customer': {'id': 9717}, 'phoneNumber': '+79999999999'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body('site=' + site + '&' + self.dictionaryEncode('loyaltyAccount', loyalty_account))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true', 'id': 7777})
+         )
+
+        response = self.client.loyalty_account_create(site, loyalty_account)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account(self):
+        """
+        V5 Test method loyalty_account
+        """
+
+        uid = '7777'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid)
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'loyaltyAccount': {'id': 7777, 'phoneNumber': '+79999999999'}})
+         )
+
+        response = self.client.loyalty_account(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_activate(self):
+        """
+        V5 Test method loyalty_account_activate
+        """
+
+        uid = '7777'
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/activate')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.loyalty_account_activate(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_bonus_charge(self):
+        """
+        V5 Test method loyalty_account_bonus_charge
+        """
+
+        uid = '7777'
+        amount = 100.0
+        comment = 'Test charge'
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/bonus/charge')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body('amount=100.0&comment=Test+charge')
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.loyalty_account_bonus_charge(uid, amount, comment)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_bonus_credit(self):
+        """
+        V5 Test method loyalty_account_bonus_credit
+        """
+
+        uid = '7777'
+        amount = 100.0
+        activation_date = '2020-01-01'
+        expire_date = '2020-12-31'
+        comment = 'Test credit'
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/bonus/credit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body('amount=100.0&activationDate=2020-01-01&expireDate=2020-12-31&comment=Test+credit')
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.loyalty_account_bonus_credit(uid, amount, activation_date, expire_date, comment)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_bonus_operations(self):
+        """
+        V5 Test method loyalty_account_bonus_operations
+        """
+
+        uid = '7777'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/bonus/operations')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[createdAtFrom]': '2020-01-01'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'bonusOperations': []})
+         )
+
+        response = self.client.loyalty_account_bonus_operations(uid, {'createdAtFrom': '2020-01-01'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_bonus_details(self):
+        """
+        V5 Test method loyalty_account_bonus_details
+        """
+
+        uid = '7777'
+        status = 'active'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/bonus/' + status + '/details')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[createdAtFrom]': '2020-01-01'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'bonusDetails': []})
+         )
+
+        response = self.client.loyalty_account_bonus_details(uid, status, {'createdAtFrom': '2020-01-01'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_account_edit(self):
+        """
+        V5 Test method loyalty_account_edit
+        """
+
+        uid = '7777'
+        loyalty_account = {'phoneNumber': '+79999999999'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/account/' + uid + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('loyaltyAccount', loyalty_account))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.loyalty_account_edit(uid, loyalty_account)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_accounts(self):
+        """
+        V5 Test method loyalty_accounts
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/accounts')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[phoneNumber]': '+79999999999'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'loyaltyAccounts': []})
+         )
+
+        response = self.client.loyalty_accounts({'phoneNumber': '+79999999999'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_bonus_operations(self):
+        """
+        V5 Test method loyalty_bonus_operations
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/bonus/operations')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[createdAtFrom]': '2020-01-01', 'cursor': 'test-cursor'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'bonusOperations': []})
+         )
+
+        response = self.client.loyalty_bonus_operations({'createdAtFrom': '2020-01-01'}, cursor='test-cursor')
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_calculate(self):
+        """
+        V5 Test method loyalty_calculate
+        """
+
+        order = {'items': [], 'customer': {'id': 9717}}
+        site = 'test-org'
+        bonuses = 100
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/calculate')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('order', order) + '&site=test-org&bonuses=100')
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'calculation': {}})
+         )
+
+        response = self.client.loyalty_calculate(order, site, bonuses)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_loyalties(self):
+        """
+        V5 Test method loyalty_loyalties
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/loyalties')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[active]': 'true'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'loyalties': []})
+         )
+
+        response = self.client.loyalty_loyalties({'active': 'true'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_loyalty_loyalty(self):
+        """
+        V5 Test method loyalty_loyalty
+        """
+
+        uid = '7777'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/loyalty/loyalties/' + uid)
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'loyalty': {'id': 7777}})
+         )
+
+        response = self.client.loyalty_loyalty(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_notifications_send(self):
+        """
+        V5 Test method notifications_send
+        """
+
+        notification = {'type': 'email', 'user': {'id': 15}, 'message': 'Test message'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/notifications/send')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('notification', notification))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.notifications_send(notification)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_orders(self):
         """
         V5 Test method orders
@@ -2264,6 +2784,165 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_order_links_create(self):
+        """
+        V5 Test method order_links_create
+        """
+
+        link = {
+            "comment": "test",
+            "orders": [
+                {
+                    "id": 5604,
+                    "externalId": 5603,
+                    "number": 1
+                },
+                {
+                    "id": 5605,
+                    "externalId": 5601,
+                    "number": 1
+                }
+            ]
+        }
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/links/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('link', link))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.order_links_create(link)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_orders_loyalty_apply(self):
+        """
+        V5 Test method orders_loyalty_apply
+        """
+
+        order = {'id': 5604, 'items': []}
+        site = 'test-org'
+        bonuses = 100
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/loyalty/apply')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('order', order) + '&site=test-org&bonuses=100')
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.orders_loyalty_apply(order, site, bonuses)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_orders_loyalty_cancel_bonus_operations(self):
+        """
+        V5 Test method orders_loyalty_cancel_bonus_operations
+        """
+
+        order = {'id': 5604}
+        site = 'test-org'
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/loyalty/cancel-bonus-operations')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('order', order) + '&site=test-org')
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.orders_loyalty_cancel_bonus_operations(order, site)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_order_payment_create(self):
+        """
+        V5 Test method payment_create
+        """
+
+        payment = {'order': {'externalId': '5603'}, 'type': 'bank-card'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('payment', payment))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true', 'id': 7777})
+         )
+
+        response = self.client.order_payment_create(payment)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_order_payment_delete(self):
+        """
+        V5 Test method order_payment_delete
+        """
+
+        uid = '7777'
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/' + uid + '/delete')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.order_payment_delete(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_order_payment_edit(self):
+        """
+        V5 Test method order_payment_edit
+        """
+
+        payment = {
+            'externalId': '5603',
+            'order': [
+                {
+                    'id': 5604,
+                    'externalId': '5603',
+                    'number': 1
+                }
+            ],
+            'type': 'bank-card'
+        }
+        uid = str(self.__order['externalId'])
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/' + uid + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('payment', payment))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'payment': payment})
+         )
+
+        response = self.client.order_payment_edit(payment)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_orders_statuses(self):
         """
         V5 Test method orders_statuses
@@ -2348,119 +3027,73 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_order_links_create(self):
+    def test_orders_delivery_cancel(self):
         """
-        V5 Test method order_links_create
-        """
-
-        link = {
-            "comment": "test",
-            "orders": [
-                {
-                    "id": 5604,
-                    "externalId": 5603,
-                    "number": 1
-                },
-                {
-                    "id": 5605,
-                    "externalId": 5601,
-                    "number": 1
-                }
-            ]
-        }
-
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/links/create')
-         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .body(self.dictionaryEncode('link', link))
-         .reply(201)
-         .headers(self.__header)
-         .json({'success': 'true'})
-         )
-
-        response = self.client.order_links_create(link)
-        pook.off()
-
-        self.assertTrue(response.is_successful(), True)
-        self.assertTrue(response.get_status_code() < 400, True)
-
-    @pook.on
-    def test_order_payment_create(self):
-        """
-        V5 Test method payment_create
+        V5 Test method orders_delivery_cancel
         """
 
-        payment = {'order': {'externalId': '5603'}, 'type': 'bank-card'}
-
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/create')
-         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .body(self.dictionaryEncode('payment', payment))
-         .reply(201)
-         .headers(self.__header)
-         .json({'success': 'true', 'id': 7777})
-         )
-
-        response = self.client.order_payment_create(payment)
-        pook.off()
-
-        self.assertTrue(response.is_successful(), True)
-        self.assertTrue(response.get_status_code() < 400, True)
-
-    @pook.on
-    def test_order_payment_delete(self):
-        """
-        V5 Test method order_payment_delete
-        """
-
-        uid = '7777'
-
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/' + uid + '/delete')
-         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .reply(200)
-         .headers(self.__header)
-         .json({'success': 'true'})
-         )
-
-        response = self.client.order_payment_delete(uid)
-        pook.off()
-
-        self.assertTrue(response.is_successful(), True)
-        self.assertTrue(response.get_status_code() < 400, True)
-
-    @pook.on
-    def test_order_payment_edit(self):
-        """
-        V5 Test method order_payment_edit
-        """
-
-        payment = {
-            'externalId': '5603',
-            'order': [
-                {
-                    'id': 5604,
-                    'externalId': '5603',
-                    'number': 1
-                }
-            ],
-            'type': 'bank-card'
-        }
         uid = str(self.__order['externalId'])
 
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/payments/' + uid + '/edit')
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/' + uid + '/delivery/cancel')
          .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .body(self.dictionaryEncode('payment', payment))
+         .body('force=false')
          .reply(200)
          .headers(self.__header)
-         .json({'success': 'true', 'payment': payment})
+         .json({'success': 'true'})
          )
 
-        response = self.client.order_payment_edit(payment)
+        response = self.client.orders_delivery_cancel(uid)
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_orders_statuses_v5(self):
+    def test_orders_edit(self):
+        """
+        V5 Test method orders_edit
+        """
+
+        uid = str(self.__order['externalId'])
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/' + uid + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('order', self.__order))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'id': 5604, 'order': self.__order})
+         )
+
+        response = self.client.order_edit(self.__order)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_orders_plates_print(self):
+        """
+        V5 Test method orders_plates_print
+        """
+
+        uid = str(self.__order['externalId'])
+        plate_id = '7777'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/orders/' + uid + '/plates/' + plate_id + '/print')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.orders_plates_print(uid, plate_id)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_orders_statuses(self):
         """
         V5 Test method orders_statuses
         """
@@ -2492,7 +3125,7 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_orders_upload_v5(self):
+    def test_orders_upload(self):
         """
         V5 Test method orders_upload
         """
@@ -2523,7 +3156,7 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def test_order_v5(self):
+    def test_order(self):
         """
         V5 Test method order
         """
@@ -2538,28 +3171,6 @@ class TestVersion5(unittest.TestCase):
          )
 
         response = self.client.order(uid)
-        pook.off()
-
-        self.assertTrue(response.is_successful(), True)
-        self.assertTrue(response.get_status_code() < 400, True)
-
-    @pook.on
-    def test_orders_edit(self):
-        """
-        V5 Test method orders_edit
-        """
-
-        uid = str(self.__order['externalId'])
-
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/orders/' + uid + '/edit')
-         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
-         .body(self.dictionaryEncode('order', self.__order))
-         .reply(200)
-         .headers(self.__header)
-         .json({'success': 'true', 'id': 5604, 'order': self.__order})
-         )
-
-        response = self.client.order_edit(self.__order)
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
@@ -2773,6 +3384,49 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_payment_invoice_import(self):
+        """
+        V5 Test method payment_invoice_import
+        """
+
+        invoice = {'invoiceUuid': '577', 'amount': 1000, 'currency': 'RUB'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/payment/invoice/import')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('invoice', invoice))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.payment_invoice_import(invoice)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_payment_invoice(self):
+        """
+        V5 Test method payment_invoice
+        """
+
+        uid = '577'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/payment/invoice/' + uid)
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'invoice': {'invoiceUuid': '577'}})
+         )
+
+        response = self.client.payment_invoice(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_payment_update_invoice(self):
         """
         V5 Test method payment_update_invoice
@@ -2908,7 +3562,7 @@ class TestVersion5(unittest.TestCase):
 
         item = {'code': 'cost-it-example', 'name': 'CostItem-example', 'ordering': 990, 'active': 'true'}
 
-        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/reference/cost-groups/' + item['code'] + '/edit')
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/reference/cost-items/' + item['code'] + '/edit')
          .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
          .body(self.dictionaryEncode('costItem', item))
          .reply(200)
@@ -3035,6 +3689,69 @@ class TestVersion5(unittest.TestCase):
          )
 
         response = self.client.couriers_edit(courier)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_currencies(self):
+        """
+        V5 Test method currencies
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/reference/currencies')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'currencies': [{'code': 'RUB', 'name': 'Рубль'}]})
+         )
+
+        response = self.client.currencies()
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_currencies_create(self):
+        """
+        V5 Test method currencies_create
+        """
+
+        currency = {'code': 'EUR', 'name': 'Euro', 'symbol': '€'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/reference/currencies/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('currency', currency))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true', 'id': 8888})
+         )
+
+        response = self.client.currencies_create(currency)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_currencies_edit(self):
+        """
+        V5 Test method currencies_edit
+        """
+
+        currency = {'id': 8888, 'code': 'EUR', 'name': 'Euro', 'symbol': '€'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/reference/currencies/' + str(currency['id']) + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('currency', currency))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.currencies_edit(currency)
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
@@ -3892,6 +4609,49 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_subscriptions(self):
+        """
+        V5 Test method subscriptions
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/reference/subscriptions')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'subscriptions': {}})
+         )
+
+        response = self.client.subscriptions()
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_subscriptions_edit(self):
+        """
+        V5 Test method subscriptions_edit
+        """
+
+        channel = 'email'
+        code = 'order_created'
+        subscription = {'active': 'true', 'name': 'marketing'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/reference/subscriptions/' + channel + '/' + code + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('subscription', subscription))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.subscriptions_edit(channel, code, subscription)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_units(self):
         """
         V5 Test method units
@@ -3997,6 +4757,86 @@ class TestVersion5(unittest.TestCase):
         )
 
         response = self.client.segments({'active': 'true'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_settings(self):
+        """
+        V5 Test method settings
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/settings')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json(
+            {
+                'success': 'true',
+                'settings': {
+                    "default_currency": {
+                        "value": "EUR",
+                        "updated_at": "2025-01-10 06:48:41"
+                    },
+                    "system_language": {
+                        "value": "EN",
+                        "updated_at": "2025-10-29 18:49:05"
+                    },
+                    "timezone": {
+                        "value": "Europe/Madrid",
+                        "updated_at": "2025-07-24 01:17:09"
+                    },
+                    "work_times": [
+                        {
+                            "day_type": "Tuesday",
+                            "start_time": "08:00",
+                            "end_time": "20:00",
+                            "lunch_start_time": "18:00",
+                            "lunch_end_time": "19:00"
+                        },
+                        {
+                            "day_type": "Wednesday",
+                            "start_time": "10:00",
+                            "end_time": "21:00"
+                        },
+                        {
+                            "day_type": "Friday",
+                            "start_time": "10:00",
+                            "end_time": "21:00"
+                        },
+                        {
+                            "day_type": "Saturday",
+                            "start_time": "12:00",
+                            "end_time": "13:00"
+                        }
+                    ],
+                    "non_working_days": [
+                        {
+                            "start_date": "05.01",
+                            "end_date": "05.04"
+                        }
+                    ],
+                    "mg": {
+                        "order_creation": {
+                            "default": {
+                                "site": "central",
+                                "order_type": "eshop",
+                                "order_method": "messenger"
+                            },
+                            "channels": {
+                                "1": {
+                                    "site": "central"
+                                },
+                            }
+                        }
+                    }
+                }
+            })
+         )
+
+        response = self.client.settings()
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
@@ -4211,6 +5051,51 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_product_groups_create(self):
+        """
+        V5 Test method product_groups_create
+        """
+
+        product_group = {'name': 'Test Group', 'site': 'test-org', 'externalId': 'group-1'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/store/product-groups/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('productGroup', product_group))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true', 'id': 7777})
+         )
+
+        response = self.client.product_groups_create(product_group)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_product_groups_edit(self):
+        """
+        V5 Test method product_groups_edit
+        """
+
+        uid = 'group-1'
+        product_group = {'name': 'Test Group Updated', 'externalId': 'group-1'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/store/product-groups/' + uid + '/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('productGroup', product_group))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.product_groups_edit(uid, product_group)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_products(self):
         """
         V5 Test method products
@@ -4285,6 +5170,50 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_products_batch_create(self):
+        """
+        V5 Test method products_batch_create
+        """
+
+        products = [{'name': 'Test Product', 'externalId': 'prod-1'}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/store/products/batch/create')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('products', products))
+         .reply(201)
+         .headers(self.__header)
+         .json({'success': 'true', 'processedProductsCount': 1})
+         )
+
+        response = self.client.products_batch_create(products)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_products_batch_edit(self):
+        """
+        V5 Test method products_batch_edit
+        """
+
+        products = [{'name': 'Test Product Updated', 'externalId': 'prod-1'}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/store/products/batch/edit')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('products', products))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'processedProductsCount': 1})
+         )
+
+        response = self.client.products_batch_edit(products)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_products_properties(self):
         """
         V5 Test method products_properties
@@ -4342,6 +5271,26 @@ class TestVersion5(unittest.TestCase):
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
+
+    @pook.on
+    def test_products_properties_values(self):
+        """
+        V5 Test method products_properties_values
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/store/products/properties/values')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[property]': 'color'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'propertyValues': []})
+         )
+
+        response = self.client.products_properties_values({'property': 'color'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
     def test_tasks(self):
@@ -4415,6 +5364,26 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
+    def test_tasks_history(self):
+        """
+        V5 Test method tasks_history
+        """
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/tasks/history')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .params({'filter[startDate]': '2020-01-01', 'filter[endDate]': '2020-12-31'})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'history': []})
+         )
+
+        response = self.client.tasks_history({'startDate': '2020-01-01', 'endDate': '2020-12-31'})
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
     def test_task(self):
         """
         V5 Test method task
@@ -4430,6 +5399,27 @@ class TestVersion5(unittest.TestCase):
          )
 
         response = self.client.task(uid)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_tasks_comments(self):
+        """
+        V5 Test method tasks_comments
+        """
+
+        uid = str(self.__task['id'])
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/tasks/' + uid + '/comments')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'comments': []})
+         )
+
+        response = self.client.tasks_comments(uid)
         pook.off()
 
         self.assertTrue(response.is_successful(), True)
@@ -4708,7 +5698,116 @@ class TestVersion5(unittest.TestCase):
         self.assertTrue(response.get_status_code() < 400, True)
 
     @pook.on
-    def statistic_update(self):
+    def test_verification_sms_confirm(self):
+        """
+        V5 Test method verification_sms_confirm
+        """
+
+        verification = {'checkId': '777', 'code': '1234'}
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/verification/sms/confirm')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('verification', verification))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.verification_sms_confirm(verification)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_verification_sms_status(self):
+        """
+        V5 Test method verification_sms_status
+        """
+
+        check_id = '777'
+
+        (pook.get(os.getenv('RETAILCRM_URL') + '/api/v5/verification/sms/' + check_id + '/status')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true', 'status': 'confirmed'})
+         )
+
+        response = self.client.verification_sms_status(check_id)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_web_analytics_client_ids_upload(self):
+        """
+        V5 Test method web_analytics_client_ids_upload
+        """
+
+        client_ids = [{'customer': {'id': 9717}, 'clientId': 'test-client-id'}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/web-analytics/client-ids/upload')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('clientIds', client_ids))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.web_analytics_client_ids_upload(client_ids)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_web_analytics_sources_upload(self):
+        """
+        V5 Test method web_analytics_sources_upload
+        """
+
+        sources = [{'customer': {'id': 9717}, 'source': 'google'}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/web-analytics/sources/upload')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('sources', sources))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.web_analytics_sources_upload(sources)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_web_analytics_visits_upload(self):
+        """
+        V5 Test method web_analytics_visits_upload
+        """
+
+        visits = [{'customer': {'id': 9717}, 'visitDate': '2020-01-01'}]
+
+        (pook.post(os.getenv('RETAILCRM_URL') + '/api/v5/web-analytics/visits/upload')
+         .headers({'X-API-KEY': os.getenv('RETAILCRM_KEY')})
+         .body(self.dictionaryEncode('visits', visits))
+         .reply(200)
+         .headers(self.__header)
+         .json({'success': 'true'})
+         )
+
+        response = self.client.web_analytics_visits_upload(visits)
+        pook.off()
+
+        self.assertTrue(response.is_successful(), True)
+        self.assertTrue(response.get_status_code() < 400, True)
+
+    @pook.on
+    def test_statistic_update(self):
         """
         V5 Test method statistic_update
         """

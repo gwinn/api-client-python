@@ -17,7 +17,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "multidimensional-urlencode==0.0.4",
-    "requests==2.32.4",
+    "requests~=2.32.4",
 ]
 
 classifiers = [

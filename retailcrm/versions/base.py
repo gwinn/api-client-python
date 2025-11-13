@@ -59,8 +59,8 @@ class Base(object):
         """
         return self.get('/credentials', False)
 
-    def statistic_update(self):
+    def system_info(self):
         """
-        :return Response
+        :return: Response
         """
-        return self.get('/statistic/update')
+        return self.get('/system-info', False)
